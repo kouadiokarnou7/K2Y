@@ -20,4 +20,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-})
+  server: {
+    proxy: {
+      '/api/groq': {
+        target: 'https://api.groq.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/groq/, ''),
+        headers: {
+          'Authorization': 'Bearer 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',
+        },
+      },
+    },
+  },
+},
+)
