@@ -122,3 +122,16 @@
     @apply bg-background text-foreground;
     }
 }
+.container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background:
+    repeating-linear-gradient(#eee 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(90deg,#eee 0 1px, transparent 1px 40px);
+}
+
+.map {
+  width: 600px;
+}
