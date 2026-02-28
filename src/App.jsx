@@ -9,6 +9,10 @@ import ContribFeed from './ContribFeed.jsx';
 import { REGIONS } from './data.js';
 import { useAuth } from '@/context/Authcontext.jsx';
 import { useLogout } from '@/hooks/Uselogout.jsx';
+import { Link } from 'react-router-dom';
+
+
+const MotionLink = motion(Link)
 
 import districtData from './ci.json';
 
@@ -211,10 +215,10 @@ function Header({ panelOpen, onOpenAI, onOpenContrib }) {
           <Sparkles size={12} /> IA Kôrô
         </motion.button>
 
-        <motion.button
+        <MotionLink
+          to="/feed"
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.96 }}
-          onClick={onOpenContrib}
           style={{
             display: 'flex', alignItems: 'center', gap: '7px',
             background: 'rgba(249,246,240,0.9)',
@@ -225,10 +229,12 @@ function Header({ panelOpen, onOpenAI, onOpenContrib }) {
             cursor: 'pointer', fontSize: '0.62rem',
             fontFamily: "'Cinzel', serif", letterSpacing: '0.1em',
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            textDecoration: 'none', // ✅ enlève le souligné du lien
           }}
         >
           <Users size={12} /> Communauté
-        </motion.button>
+        </MotionLink>
+
         {/* ── DÉCONNEXION ── */}
         <motion.button
           whileHover={{
