@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Users, MapPin, ChevronRight } from 'lucide-react';
+import { Sparkles, Users, MapPin, ChevronRight , LogOut} from 'lucide-react';
 
 import MapView from './MapView.jsx';
 import RegionPanel from './RegionPanel.jsx';
 import AIModal from './AIModal.jsx';
 import ContribFeed from './ContribFeed.jsx';
 import { REGIONS } from './data.js';
+import { useAuth } from '@/context/Authcontext.jsx';
+import { useLogout } from '@/hooks/Uselogout.jsx';
 
 import districtData from './ci.json';
 
@@ -156,6 +158,7 @@ function Loader({ onComplete }) {
 
 // ── HEADER ──────────────────────────────────────────────────
 function Header({ panelOpen, onOpenAI, onOpenContrib }) {
+   const { logout } = useLogout(); // ✅ ici, au niveau du composant
   return (
     <motion.header
       initial={{ opacity: 0, y: -12 }}
@@ -225,6 +228,33 @@ function Header({ panelOpen, onOpenAI, onOpenContrib }) {
           }}
         >
           <Users size={12} /> Communauté
+        </motion.button>
+        {/* ── DÉCONNEXION ── */}
+        <motion.button
+          whileHover={{
+            scale: 1.06,
+            background: 'rgba(185,40,30,0.09)',
+            borderColor: 'rgba(185,40,30,0.35)',
+            color: '#b92828',
+          }}
+          whileTap={{ scale: 0.93 }}
+          onClick={logout}
+          title="Se déconnecter"
+          style={{
+            width: 35, height: 35,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(249,246,240,0.9)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(184,134,11,0.22)',
+            color: '#7a6e62',
+            borderRadius: '50%',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            flexShrink: 0,
+            transition: 'background 0.2s, border-color 0.2s, color 0.2s',
+          }}
+        >
+          <LogOut size={14} />
         </motion.button>
       </div>
     </motion.header>
