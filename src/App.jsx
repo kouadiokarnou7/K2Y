@@ -1,14 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Users, MapPin, ChevronRight } from 'lucide-react';
+import { Sparkles, Users, MapPin, ChevronRight, LogOut } from 'lucide-react';
 
 import MapView from './MapView.jsx';
 import RegionPanel from './RegionPanel.jsx';
 import AIModal from './AIModal.jsx';
 import ContribFeed from './ContribFeed.jsx';
 import { REGIONS } from './data.js';
+import { useAuth } from '@/context/Authcontext.jsx';
+import { useLogout } from '@/hooks/Uselogout.jsx';
 
 import districtData from './ci.json';
+
+// ── NOUVEAUX IMPORTS AUDIO ──────────────────────────────────
+import { useDistrictAudio } from './useDistrictAudio.js';
+import AudioPlayer from './AudioPlayer.jsx';
+// ────────────────────────────────────────────────────────────
+
+import { Link } from 'react-router-dom';
+const MotionLink = motion(Link)
 
 const GLOBAL_CSS = `
   @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
@@ -99,14 +109,12 @@ function Loader({ onComplete }) {
         overflow: 'hidden',
       }}
     >
-      {/* Grille de points */}
       <div style={{
         position: 'absolute', inset: 0, opacity: 0.035,
         backgroundImage: 'radial-gradient(circle, #b8860b 1px, transparent 1px)',
         backgroundSize: '28px 28px',
       }} />
 
-      {/* Logo central */}
       <div style={{ position: 'relative', marginBottom: '3.5rem' }}>
         {[88, 66, 46].map((s, i) => (
           <div key={i} style={{
@@ -156,7 +164,9 @@ function Loader({ onComplete }) {
 
 // ── HEADER ──────────────────────────────────────────────────
 function Header({ panelOpen, onOpenAI, onOpenContrib }) {
+  const { logout } = useLogout(); 
   return (
+    
     <motion.header
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
@@ -171,7 +181,6 @@ function Header({ panelOpen, onOpenAI, onOpenContrib }) {
         pointerEvents: 'none',
       }}
     >
-      {/* Logo */}
       <div style={{ pointerEvents: 'all', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
         <div style={{
           width: 38, height: 38, borderRadius: '50%',
@@ -188,7 +197,6 @@ function Header({ panelOpen, onOpenAI, onOpenContrib }) {
         </div>
       </div>
 
-      {/* Boutons */}
       <div style={{ display: 'flex', gap: '8px', pointerEvents: 'all' }}>
         <motion.button
           whileHover={{ scale: 1.03, boxShadow: '0 4px 20px rgba(184,134,11,0.5)' }}
@@ -197,8 +205,7 @@ function Header({ panelOpen, onOpenAI, onOpenContrib }) {
           style={{
             display: 'flex', alignItems: 'center', gap: '7px',
             background: 'linear-gradient(135deg, #9a7020, #d4af37)',
-            border: 'none',
-            color: '#fff',
+            border: 'none', color: '#fff',
             borderRadius: '999px', padding: '0.5rem 1.15rem',
             cursor: 'pointer', fontSize: '0.62rem',
             fontFamily: "'Cinzel', serif", letterSpacing: '0.1em',
@@ -208,10 +215,10 @@ function Header({ panelOpen, onOpenAI, onOpenContrib }) {
           <Sparkles size={12} /> IA Kôrô
         </motion.button>
 
-        <motion.button
+           <MotionLink
+          to="/feed"
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.96 }}
-          onClick={onOpenContrib}
           style={{
             display: 'flex', alignItems: 'center', gap: '7px',
             background: 'rgba(249,246,240,0.9)',
@@ -222,9 +229,37 @@ function Header({ panelOpen, onOpenAI, onOpenContrib }) {
             cursor: 'pointer', fontSize: '0.62rem',
             fontFamily: "'Cinzel', serif", letterSpacing: '0.1em',
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            textDecoration: 'none', // ✅ enlève le souligné du lien
           }}
         >
           <Users size={12} /> Communauté
+        </MotionLink>
+         {/* ── DÉCONNEXION ── */}
+        <motion.button
+          whileHover={{
+            scale: 1.06,
+            background: 'rgba(185,40,30,0.09)',
+            borderColor: 'rgba(185,40,30,0.35)',
+            color: '#b92828',
+          }}
+          whileTap={{ scale: 0.93 }}
+          onClick={logout}
+          title="Se déconnecter"
+          style={{
+            width: 35, height: 35,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(249,246,240,0.9)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(184,134,11,0.22)',
+            color: '#7a6e62',
+            borderRadius: '50%',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+            flexShrink: 0,
+            transition: 'background 0.2s, border-color 0.2s, color 0.2s',
+          }}
+        >
+          <LogOut size={14} />
         </motion.button>
       </div>
     </motion.header>
@@ -239,7 +274,7 @@ function Legend({ selectedRegion }) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.55, duration: 0.45 }}
+      transition={{ delay: 0.10, duration: 0.45 }}
       style={{
         position: 'absolute', bottom: '1.5rem', left: '1.5rem', zIndex: 20,
         background: 'rgba(249,246,240,0.94)',
@@ -333,7 +368,6 @@ function AIFloatingBubble({ onOpenAI }) {
         </motion.button>
       </div>
 
-      {/* Tooltip au survol */}
       <AnimatePresence>
         {hovered && (
           <motion.div
@@ -368,6 +402,10 @@ export default function App() {
   const [showAI, setShowAI]           = useState(false);
   const [showContrib, setShowContrib] = useState(false);
 
+  // ── AUDIO : s'active automatiquement au clic sur un district ──
+  const { isPlaying, currentTrack, volume, setVolume, stop } = useDistrictAudio(selectedReg);
+  // ──────────────────────────────────────────────────────────────
+
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = GLOBAL_CSS;
@@ -400,6 +438,17 @@ export default function App() {
           />
 
           <Legend selectedRegion={selectedReg} />
+
+          {/* ── LECTEUR AUDIO FLOTTANT ── */}
+          <AudioPlayer
+            isPlaying={isPlaying}
+            currentTrack={currentTrack}
+            volume={volume}
+            setVolume={setVolume}
+            stop={stop}
+            panelOpen={!!selectedReg}
+          />
+          {/* ──────────────────────────── */}
 
           {/* Bulle IA flottante — disparaît quand panel ouvert */}
           <AnimatePresence>
